@@ -1,0 +1,6 @@
+add_library(LZ4Decoder SHARED LZ4Decoder.cpp)
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_definitions(-DQT_NO_DEBUG)
+endif()
+target_link_libraries(LZ4Decoder Qt5::Core lz4)
+install(TARGETS LZ4Decoder DESTINATION lib/codec)

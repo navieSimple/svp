@@ -1,0 +1,15 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icons/configure.png</file>
+        <file>icons/remote-desktop.png</file>
+        <file>icons/view-fullscreen.png</file>
+        <file>icons/view-refresh.png</file>
+        <file>icons/help-about.png</file>
+        <file>icons/view-statistics.png</file>
+        <file>icons/go-jump-locationbar.png</file>
+        <file>icons/transform-scale.png</file>
+        <file>icons/script-error.png</file>
+        <file>icons/fill-color.png</file>
+        <file>icons/drive-usb.png</file>
+    </qresource>
+</RCC>

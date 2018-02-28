@@ -1,0 +1,171 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the SVP Extension Pack.
+#
+
+#
+# Copyright (C) 2010-2012 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# Extend the extension pack templates.
+#
+TEMPLATE_VBoxR3ExtPackSVP          = For the ring-3 context modules in the SVP extension pack.
+TEMPLATE_VBoxR3ExtPackSVP_EXTENDS  = VBoxR3ExtPack
+TEMPLATE_VBoxR3ExtPackSVP_INST     = $(INST_EXTPACK)SVP/$(KBUILD_TARGET).$(KBUILD_TARGET_ARCH)/
+
+TEMPLATE_VBoxR0ExtPackSVP          = For the ring-0 context modules in the SVP extension pack.
+TEMPLATE_VBoxR0ExtPackSVP_EXTENDS  = VBoxR0ExtPack
+TEMPLATE_VBoxR0ExtPackSVP_INST     = $(INST_EXTPACK)SVP/$(KBUILD_TARGET).$(KBUILD_TARGET_ARCH)/
+
+TEMPLATE_VBoxRcExtPackSVP          = For the raw-mode context modules in the SVP extension pack.
+TEMPLATE_VBoxRcExtPackSVP_EXTENDS  = VBoxRcExtPack
+TEMPLATE_VBoxRcExtPackSVP_INST     = $(INST_EXTPACK)SVP/$(KBUILD_TARGET).$(KBUILD_TARGET_ARCH)/
+
+TEMPLATE_VBoxInsExtPackSVP         = For the install targets of an extension pack.
+TEMPLATE_VBoxInsExtPackSVP_EXTENDS = VBoxR0ExtPack
+TEMPLATE_VBoxInsExtPackSVP_INST    = $(INST_EXTPACK)SVP/
+
+#
+# Globals.
+#
+VBOX_SVP_NAME         = SVP
+VBOX_SVP_MANGLED_NAME = SVP
+VBOX_PATH_EXTPACK_SVP = $(PATH_STAGE)/$(INST_EXTPACK)SVP
+
+#
+# VBoxSVPMain - The module which the VirtualBox Main API talks to.
+#
+DLLS += VBoxSVPMain
+VBoxSVPMain_TEMPLATE = VBoxR3ExtPackSVP
+VBoxSVPMain_SOURCES = VBoxSVPMain.cpp
+VBoxSVPMain_DEFS =
+
+#
+# VBoxSVP - The SVP VRDE module.
+#
+DLLS += VBoxSVP
+VBoxSVP_TEMPLATE = VBoxR3ExtPackSVP
+VBoxSVP_SOURCES = VBoxSVP.cpp
+VBoxSVP_LIBS = svp
+VBoxSVP_INCS = /usr/include/svp
+
+#
+# CvmEhci - Cvm USB EHCI Controller
+#
+DLLS += CvmEhci
+CvmEhci_TEMPLATE = VBoxR3ExtPackSVP
+CvmEhci_SOURCES = DevEhci.cpp
+CvmEhci_DEFS =
+
+#
+# Install the description.
+#
+INSTALLS += VBoxSVPIns
+VBoxSVPIns_TEMPLATE = VBoxInsExtPackSVP
+VBoxSVPIns_SOURCES = \
+	$(VBoxSVPIns_0_OUTDIR)/ExtPack.xml \
+	$(PATH_ROOT)/doc/License-gpl-2.html=>ExtPack-license.html \
+	$(PATH_ROOT)/doc/License-gpl-2.txt=>ExtPack-license.txt \
+	$(PATH_ROOT)/doc/License-gpl-2.rtf=>ExtPack-license.rtf
+$(call VBOX_EDIT_VERSION_RULE_FN,VBoxSVPIns,ExtPack.xml)
+
+
+#
+# Packing.
+#
+ifndef VBOX_WITHOUT_EXTPACK_SVP_PACKING
+ PACKING += $(VBOX_PATH_PACKAGES)/$(VBOX_SVP_MANGLED_NAME)-$(VBOX_VERSION_STRING)r$(VBOX_SVN_REV).vbox-extpack
+endif
+
+ifndef VBOX_WITH_EXTPACK_OS_ARCHS
+ VBOX_WITH_EXTPACK_OS_ARCHS = $(KBUILD_TARGET).$(KBUILD_TARGET_ARCH)
+endif
+
+# Build the file list.  The macro takes 1=darwin.x86, 2=dist/VirtualBox.app/Contents/MacOS, 3=dylib
+VBOX_SVP_FILES_MACRO = \
+	$(PATH_OUT_BASE)/$(1)/$(KBUILD_TYPE)/$(2)/ExtensionPacks/$(VBOX_SVP_MANGLED_NAME)/$(1)/VBoxSVPMain.$(3)=>$(1)/VBoxSVPMain.$(3) \
+	$(PATH_OUT_BASE)/$(1)/$(KBUILD_TYPE)/$(2)/ExtensionPacks/$(VBOX_SVP_MANGLED_NAME)/$(1)/VBoxSVP.$(3)=>$(1)/VBoxSVP.$(3)
+
+VBOX_SVP_FILES := \
+	$(VBOX_PATH_EXTPACK_SVP)/ExtPack.xml=>ExtPack.xml \
+	$(VBOX_PATH_EXTPACK_SVP)/ExtPack-license.html=>ExtPack-license.html \
+	$(VBOX_PATH_EXTPACK_SVP)/ExtPack-license.rtf=>ExtPack-license.rtf \
+	$(VBOX_PATH_EXTPACK_SVP)/ExtPack-license.txt=>ExtPack-license.txt
+
+
+if1of (darwin.amd64, $(VBOX_WITH_EXTPACK_OS_ARCHS))
+ VBOX_SVP_FILES += $(call VBOX_SVP_FILES_MACRO,darwin.amd64,dist/VirtualBox.app/Contents/MacOS,dylib)
+endif
+if1of (darwin.x86, $(VBOX_WITH_EXTPACK_OS_ARCHS))
+ VBOX_SVP_FILES += $(call VBOX_SVP_FILES_MACRO,darwin.x86,dist/VirtualBox.app/Contents/MacOS,dylib)
+endif
+if1of (freebsd.amd64, $(VBOX_WITH_EXTPACK_OS_ARCHS))
+ VBOX_SVP_FILES += $(call VBOX_SVP_FILES_MACRO,freebsd.amd64,bin,so)
+endif
+if1of (freebsd.x86, $(VBOX_WITH_EXTPACK_OS_ARCHS))
+ VBOX_SVP_FILES += $(call VBOX_SVP_FILES_MACRO,freebsd.x86,bin,so)
+endif
+if1of (linux.amd64, $(VBOX_WITH_EXTPACK_OS_ARCHS))
+ VBOX_SVP_FILES += $(call VBOX_SVP_FILES_MACRO,linux.amd64,bin,so)
+endif
+if1of (linux.x86, $(VBOX_WITH_EXTPACK_OS_ARCHS))
+ VBOX_SVP_FILES += $(call VBOX_SVP_FILES_MACRO,linux.x86,bin,so)
+endif
+if1of (os2.x86, $(VBOX_WITH_EXTPACK_OS_ARCHS))
+ VBOX_SVP_FILES += $(call VBOX_SVP_FILES_MACRO,os2.x86,bin,so)
+endif
+if1of (solaris.amd64, $(VBOX_WITH_EXTPACK_OS_ARCHS))
+ VBOX_SVP_FILES += $(call VBOX_SVP_FILES_MACRO,solaris.amd64,bin,so)
+endif
+if1of (solaris.x86, $(VBOX_WITH_EXTPACK_OS_ARCHS))
+ VBOX_SVP_FILES += $(call VBOX_SVP_FILES_MACRO,solaris.x86,bin,so)
+endif
+if1of (win.amd64, $(VBOX_WITH_EXTPACK_OS_ARCHS))
+ VBOX_SVP_FILES += $(call VBOX_SVP_FILES_MACRO,win.amd64,bin,dll)
+endif
+if1of (win.x86, $(VBOX_WITH_EXTPACK_OS_ARCHS))
+ VBOX_SVP_FILES += $(call VBOX_SVP_FILES_MACRO,win.x86,bin,dll)
+endif
+
+# Pack it all up using a temporary staging directory.
+$(VBOX_PATH_PACKAGES)/$(VBOX_SVP_MANGLED_NAME)-$(VBOX_VERSION_STRING)r$(VBOX_SVN_REV).vbox-extpack: \
+		$$(foreach file, $$(VBOX_SVP_FILES), $$(firstword $$(subst =>,$$(SP),$$(file)))) \
+		| $(VBOX_PATH_PACKAGES)/
+	$(RM) -f $(wildcard $(VBOX_PATH_PACKAGES)/$(VBOX_SVP_MANGLED_NAME)-*.vbox-extpack) \
+		$(VBoxSVPIns_0_OUTDIR)/ExtPack.manifest \
+		$(VBoxSVPIns_0_OUTDIR)/ExtPack.signature
+# Stage all the files
+	$(RM) -Rf $(VBoxSVPIns_0_OUTDIR)/Stage/
+	$(foreach file, $(VBOX_SVP_FILES),\
+		$(NLTAB)$(MKDIR) -p $(dir $(lastword $(subst =>,$(SP)$(VBoxSVPIns_0_OUTDIR)/Stage/,$(file)))) \
+		$(NLTAB)$(CP) $(subst =>,$(SP)$(VBoxSVPIns_0_OUTDIR)/Stage/,$(file)) )
+# Create the manifest
+	$(VBOX_RTMANIFEST) \
+		--manifest $(VBoxSVPIns_0_OUTDIR)/Stage/ExtPack.manifest \
+		--chdir $(VBoxSVPIns_0_OUTDIR)/Stage/ \
+		$(foreach file, $(VBOX_SVP_FILES), $(lastword $(subst =>,$(SP),$(file))))
+	$(APPEND) $(VBoxSVPIns_0_OUTDIR)/Stage/ExtPack.signature "todo"
+	$(CHMOD) a+r \
+		$(VBoxSVPIns_0_OUTDIR)/Stage/ExtPack.manifest \
+		$(VBoxSVPIns_0_OUTDIR)/Stage/ExtPack.signature
+# Tar it up.
+	tar -cvf - -C $(VBoxSVPIns_0_OUTDIR)/Stage/ . | gzip -9c > $@
+# Clean up
+	$(RM) -Rf $(VBoxSVPIns_0_OUTDIR)/Stage/
+
+BLDDIRS += $(VBOX_PATH_PACKAGES)/
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

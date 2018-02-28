@@ -1,0 +1,5 @@
+if(UNIX)
+    set(CMAKE_C_FLAGS "-fPIC")
+endif()
+set(config_SRCS settings.c dictionary.c iniparser.c)
+add_library(config ${config_SRCS})

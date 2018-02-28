@@ -1,0 +1,9 @@
+*.user*
+*.files
+*.config
+*.includes
+*.creator
+*.db
+*.pdf
+*.html
+build

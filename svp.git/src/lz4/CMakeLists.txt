@@ -1,0 +1,5 @@
+IF(UNIX)
+    set(CMAKE_C_FLAGS "-fPIC")
+endif()
+add_library(lz4 STATIC lz4.c lz4hc.c)
+add_definitions(-DLZ4_VERSION=\"0.0.r110\")

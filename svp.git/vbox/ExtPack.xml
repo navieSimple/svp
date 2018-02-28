@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<VirtualBoxExtensionPack xmlns="http://www.virtualbox.org/VirtualBoxExtensionPack" version="1.0">
+    <Name>SVP</Name>
+    <Description>The Simple Virtualization Protocol.</Description>
+    <Version revision="1">0.1.0</Version>
+    <MainModule>VBoxSVPMain</MainModule>
+    <VRDEModule>VBoxSVP</VRDEModule>
+    <ShowLicense/>
+</VirtualBoxExtensionPack>
+
